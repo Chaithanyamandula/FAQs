@@ -131,24 +131,24 @@ const q = $("q"), go = $("go"), label = $("label"), count = $("count"), err = $(
 const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // Backend API URL management (Render URL or local proxy)
-let customBackend = localStorage.getItem("faq_backend_url") || "";
+const DEFAULT_BACKEND_URL = "https://faq.onrender.com";
+const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+let customBackend = localStorage.getItem("faq_backend_url") || (isLocal ? "" : DEFAULT_BACKEND_URL);
+
 function updateApiLabel() {
   const lbl = $("api-label");
-  if (customBackend) {
-    try {
-      lbl.textContent = new URL(customBackend).hostname.replace(".onrender.com", "");
-    } catch {
-      lbl.textContent = "Custom";
-    }
-  } else {
-    lbl.textContent = "Default";
+  const target = customBackend || (isLocal ? "Local (127.0.0.1:5000)" : DEFAULT_BACKEND_URL);
+  try {
+    lbl.textContent = new URL(target).hostname;
+  } catch {
+    lbl.textContent = target || "Local";
   }
 }
 updateApiLabel();
 
 $("cfg-btn").addEventListener("click", () => {
-  const current = customBackend || "";
-  const input = prompt("Enter your Render Backend URL (e.g. https://your-app.onrender.com):\n(Leave empty to use default /api/classify)", current);
+  const current = customBackend || DEFAULT_BACKEND_URL;
+  const input = prompt("Render Backend URL:", current);
   if (input !== null) {
     customBackend = input.trim().replace(/\/+$/, "");
     if (customBackend) {
@@ -161,8 +161,9 @@ $("cfg-btn").addEventListener("click", () => {
 });
 
 function getApiEndpoint() {
-  if (customBackend) {
-    return `${customBackend}/api/classify`;
+  const base = customBackend || (isLocal ? "" : DEFAULT_BACKEND_URL);
+  if (base) {
+    return `${base}/api/classify`;
   }
   return "/api/classify";
 }

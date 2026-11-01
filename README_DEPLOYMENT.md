@@ -33,23 +33,23 @@ This guide walks you through deploying the project in less than 5 minutes:
 1. Go to [Render Dashboard](https://dashboard.render.com/) and click **New +** -> **Web Service**.
 2. Connect your GitHub account and select your `college-faq-classifier` repository.
 3. Configure the settings:
-   - **Name**: `college-faq-bert-api` (or any name you like)
+   - **Name**: `faq` (to get `https://faq.onrender.com`)
    - **Language**: `Python 3`
-   - **Region**: Choose the closest region (e.g., Singapore, Oregon, Frankfurt)
+   - **Region**: Choose any region (e.g., Singapore, Oregon, Frankfurt)
    - **Branch**: `main`
    - **Build Command**:
      ```bash
      pip install -r requirements.txt && python train.py
      ```
-     *(This installs dependencies and trains DistilBERT in ~1.5 minutes, generating the model directly on Render)*
+     *(This automatically trains DistilBERT during build in ~1.5 minutes directly on Render)*
    - **Start Command**:
      ```bash
      gunicorn app:app --timeout 120
      ```
    - **Instance Type**: `Free`
 4. Click **Deploy Web Service**.
-5. Once deployment completes, copy your live Render URL (e.g. `https://college-faq-bert-api.onrender.com`).
-   - You can test it by visiting: `https://your-service.onrender.com/health` -> returns `{"status":"ok"}`.
+5. Your service will be live at: **`https://faq.onrender.com`**!
+   - You can verify it by opening: `https://faq.onrender.com/health` in your browser.
 
 ---
 

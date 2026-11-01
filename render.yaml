@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: college-faq-bert-api
+    name: faq
     runtime: python
     buildCommand: "pip install -r requirements.txt && python train.py"
     startCommand: "gunicorn app:app --timeout 120"
