@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAQ Classifier</title>
+<style>
+:root {
+  --bg:#0a0a0b; --surface:#111113; --border:#27272a; --text:#ededef; --muted:#8b8b94;
+  --accent:#6366f1; --ok:#22c55e; --warn:#f59e0b; --err:#f87171;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+* { box-sizing:border-box; margin:0; }
+body { background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased;
+  font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+.mono { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+.wrap { max-width:720px; margin:0 auto; padding:0 20px; }
+header { border-bottom:1px solid var(--border); }
+.nav { display:flex; justify-content:space-between; align-items:center; height:56px; }
+.brand { display:flex; align-items:center; gap:10px; font-weight:600; }
+.logo { width:18px; height:18px; border-radius:5px; background:linear-gradient(135deg,#818cf8,#4f46e5); }
+.status-bar { display:flex; align-items:center; gap:14px; }
+.status { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
+.dot { width:7px; height:7px; border-radius:50%; background:var(--ok);
+  box-shadow:0 0 0 3px rgba(34,197,94,.16); }
+.config-btn { background:transparent; border:1px solid var(--border); color:var(--muted);
+  border-radius:6px; font-size:11px; padding:3px 8px; cursor:pointer; transition:all .15s ease; }
+.config-btn:hover { color:var(--text); border-color:#3f3f46; background:var(--surface); }
+
+main { padding:56px 0 80px; }
+h1 { font-size:28px; font-weight:600; letter-spacing:-.02em; }
+.lead { color:var(--muted); margin:8px 0 28px; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:12px; }
+.input { transition:border-color .2s ease, box-shadow .2s ease; }
+.input:focus-within { border-color:var(--accent); box-shadow:0 0 0 3px rgba(99,102,241,.18); }
+textarea { width:100%; display:block; resize:none; background:transparent; border:0; outline:0;
+  color:var(--text); font:inherit; padding:16px 18px 6px; }
+textarea::placeholder { color:#5c5c66; }
+.toolbar { display:flex; justify-content:space-between; align-items:center; padding:8px 12px 12px 18px; }
+.muted { color:var(--muted); font-size:12px; }
+button { font:inherit; cursor:pointer; }
+.btn { display:inline-flex; align-items:center; gap:8px; background:var(--text); color:var(--bg);
+  border:0; border-radius:8px; padding:8px 14px; font-size:14px; font-weight:600;
+  transition:transform .15s ease, opacity .15s ease; }
+.btn .muted { color:#52525b; }
+.btn:hover:not(:disabled) { transform:translateY(-1px); }
+.btn:active:not(:disabled) { transform:scale(.98); }
+.btn:disabled { opacity:.35; cursor:not-allowed; }
+.btn.loading::before { content:""; width:12px; height:12px; border-radius:50%;
+  border:2px solid rgba(10,10,11,.25); border-top-color:var(--bg); animation:spin .7s linear infinite; }
+.error { min-height:20px; margin-top:10px; font-size:13px; color:var(--err); }
+.chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+.chip { background:transparent; color:var(--muted); border:1px solid var(--border); border-radius:999px;
+  padding:6px 12px; font-size:13px; transition:color .15s, border-color .15s, background .15s; }
+.chip:hover { color:var(--text); border-color:#3f3f46; background:var(--surface); }
+.result { margin-top:28px; overflow:hidden; }
+.result.show { animation:rise .35s var(--ease); }
+.res-head { padding:20px; }
+.pill { display:inline-block; font-size:12px; padding:3px 10px; border-radius:999px; border:1px solid; }
+.pill.ok { color:var(--ok); border-color:rgba(34,197,94,.35); background:rgba(34,197,94,.08); }
+.pill.warn { color:var(--warn); border-color:rgba(245,158,11,.35); background:rgba(245,158,11,.08); }
+.res-title { display:flex; justify-content:space-between; align-items:baseline; margin-top:12px; }
+.res-title h2 { font-size:20px; font-weight:600; }
+.pct { font-size:20px; font-weight:600; }
+.track { height:4px; background:#232327; border-radius:2px; margin-top:14px; overflow:hidden; }
+.fill { height:100%; width:0; background:var(--accent); border-radius:2px;
+  transition:width .7s var(--ease); }
+.row { display:grid; grid-template-columns:120px 1fr; gap:12px; padding:12px 20px;
+  border-top:1px solid var(--border); font-size:14px; }
+.row dt { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.06em;
+  padding-top:2px; }
+.row dd { margin:0; }
+.reveal { opacity:0; animation:rise .45s var(--ease) forwards; animation-delay:calc(var(--i,0) * 80ms); }
+.shake { animation:shake .3s ease; }
+@keyframes rise { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+@keyframes spin { to { transform:rotate(360deg); } }
+@keyframes shake { 25% { transform:translateX(-3px); } 75% { transform:translateX(3px); } }
+@media (max-width:480px) { h1 { font-size:24px; } .row { grid-template-columns:1fr; gap:2px; } }
+@media (prefers-reduced-motion:reduce) {
+  *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+</style>
+</head>
+<body>
+<header><div class="wrap nav">
+  <div class="brand"><span class="logo"></span>FAQ Classifier</div>
+  <div class="status-bar">
+    <button id="cfg-btn" class="config-btn mono" title="Set Render Backend URL">API: <span id="api-label">Default</span> ⚙</button>
+    <div class="status mono"><span class="dot"></span>distilbert-base-uncased</div>
+  </div>
+</div></header>
+<main class="wrap">
+  <h1 class="reveal">Which office should answer this?</h1>
+  <p class="lead reveal" style="--i:1">
+    Type a college question. A fine-tuned BERT model finds the right category.
+  </p>
+  <div class="card input reveal" style="--i:2">
+    <textarea id="q" rows="3" maxlength="200" aria-label="Your question"
+      placeholder="e.g. How do I pay my semester fee online?"></textarea>
+    <div class="toolbar">
+      <span id="count" class="muted mono">0 / 200</span>
+      <button id="go" class="btn" disabled>
+        <span id="label">Classify</span><span class="muted mono">Ctrl + Enter</span>
+      </button>
+    </div>
+  </div>
+  <p id="err" class="error" role="alert"></p>
+  <div class="chips reveal" style="--i:3">
+    <button class="chip" data-q="How do I pay my semester fee online?">Pay semester fee</button>
+    <button class="chip" data-q="Where can I download my hall ticket?">Hall ticket</button>
+    <button class="chip" data-q="What are the mess timings?">Mess timings</button>
+    <button class="chip" data-q="How many books can I borrow at a time?">Library limit</button>
+    <button class="chip" data-q="What is the eligibility criteria for placements?">Placement eligibility</button>
+  </div>
+  <section id="result" class="card result" hidden aria-live="polite">
+    <div class="res-head">
+      <span id="pill" class="pill mono"></span>
+      <div class="res-title"><h2 id="title"></h2><span id="pct" class="pct mono"></span></div>
+      <div class="track"><div id="fill" class="fill"></div></div>
+    </div>
+    <dl>
+      <div class="row"><dt class="mono">Department</dt><dd id="dept"></dd></div>
+      <div class="row"><dt class="mono">Contact</dt><dd id="contact" class="mono"></dd></div>
+      <div class="row"><dt class="mono">Answer</dt><dd id="answer"></dd></div>
+    </dl>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const q = $("q"), go = $("go"), label = $("label"), count = $("count"), err = $("err");
+const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// Backend API URL management (Render URL or local proxy)
+let customBackend = localStorage.getItem("faq_backend_url") || "";
+function updateApiLabel() {
+  const lbl = $("api-label");
+  if (customBackend) {
+    try {
+      lbl.textContent = new URL(customBackend).hostname.replace(".onrender.com", "");
+    } catch {
+      lbl.textContent = "Custom";
+    }
+  } else {
+    lbl.textContent = "Default";
+  }
+}
+updateApiLabel();
+
+$("cfg-btn").addEventListener("click", () => {
+  const current = customBackend || "";
+  const input = prompt("Enter your Render Backend URL (e.g. https://your-app.onrender.com):\n(Leave empty to use default /api/classify)", current);
+  if (input !== null) {
+    customBackend = input.trim().replace(/\/+$/, "");
+    if (customBackend) {
+      localStorage.setItem("faq_backend_url", customBackend);
+    } else {
+      localStorage.removeItem("faq_backend_url");
+    }
+    updateApiLabel();
+  }
+});
+
+function getApiEndpoint() {
+  if (customBackend) {
+    return `${customBackend}/api/classify`;
+  }
+  return "/api/classify";
+}
+
+q.addEventListener("input", () => {
+  count.textContent = q.value.length + " / 200";
+  go.disabled = !q.value.trim();
+  err.textContent = "";
+});
+
+q.addEventListener("keydown", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter" && !go.disabled) classify();
+});
+
+go.addEventListener("click", classify);
+
+document.querySelectorAll(".chip").forEach((chip) => {
+  chip.addEventListener("click", () => {
+    q.value = chip.dataset.q;
+    q.dispatchEvent(new Event("input"));
+    classify();
+  });
+});
+
+function setLoading(on) {
+  q.disabled = on;
+  go.disabled = on || !q.value.trim();
+  go.classList.toggle("loading", on);
+  label.textContent = on ? "Classifying..." : "Classify";
+}
+
+async function classify() {
+  const text = q.value.trim();
+  if (!text) return;
+  setLoading(true);
+  err.textContent = "";
+  try {
+    const endpoint = getApiEndpoint();
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: text }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Something went wrong.");
+    show(data);
+  } catch (e) {
+    err.textContent = e instanceof TypeError 
+      ? "Cannot reach the server. Please check your Render backend URL or verify app is running." 
+      : e.message;
+    q.classList.remove("shake"); void q.offsetWidth; q.classList.add("shake");
+  } finally {
+    setLoading(false);
+  }
+}
+
+function show(d) {
+  const result = $("result"), pct = Math.round(d.confidence * 100);
+  result.hidden = false;
+  result.classList.remove("show"); void result.offsetWidth; result.classList.add("show");
+  $("pill").textContent = d.confident ? "Match found" : "Not sure";
+  $("pill").className = "pill mono " + (d.confident ? "ok" : "warn");
+  $("title").textContent = d.confident ? d.title : "Closest match: " + d.title;
+  $("dept").textContent = d.department;
+  $("contact").textContent = d.contact;
+  $("answer").textContent = d.confident ? d.answer
+    : "I am not sure about this one. Try rephrasing, or contact the general help desk.";
+  const fill = $("fill");
+  fill.style.width = "0%";
+  requestAnimationFrame(() => requestAnimationFrame(() => { fill.style.width = pct + "%"; }));
+  countUp(pct);
+}
+
+function countUp(to) {
+  const out = $("pct");
+  if (calm) { out.textContent = to + "%"; return; }
+  const t0 = performance.now();
+  (function step(t) {
+    const k = Math.min((t - t0) / 600, 1);
+    out.textContent = Math.round(to * k) + "%";
+    if (k < 1) requestAnimationFrame(step);
+  })(t0);
+}
+</script>
+</body>
+</html>

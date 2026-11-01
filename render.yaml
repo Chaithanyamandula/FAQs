@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: college-faq-bert-api
+    runtime: python
+    buildCommand: "pip install -r requirements.txt && python train.py"
+    startCommand: "gunicorn app:app --timeout 120"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
