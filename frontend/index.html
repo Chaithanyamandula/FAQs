@@ -131,7 +131,7 @@ const q = $("q"), go = $("go"), label = $("label"), count = $("count"), err = $(
 const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // Backend API URL management (Render URL or local proxy)
-const DEFAULT_BACKEND_URL = "https://faq.onrender.com";
+const DEFAULT_BACKEND_URL = "https://faq-2e3h.onrender.com";
 const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 let customBackend = localStorage.getItem("faq_backend_url") || (isLocal ? "" : DEFAULT_BACKEND_URL);
 

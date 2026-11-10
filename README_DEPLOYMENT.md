@@ -1,7 +1,7 @@
 # College FAQ Classifier - Deployment Guide
 ## Architecture: Render (Backend) + Netlify (Frontend)
 
-This guide walks you through deploying the project with the backend hosted on **Render** (`https://faq.onrender.com`) and the frontend hosted on **Netlify**.
+This guide walks you through deploying the project with the backend hosted on **Render** (`https://faq-2e3h.onrender.com`) and the frontend hosted on **Netlify**.
 
 ---
 
@@ -26,7 +26,7 @@ git push origin main
 2. Click **New +** > **Web Service**.
 3. Connect your GitHub account and choose repository: **`Chaithanyamandula/FAQs`**.
 4. Configure the Web Service settings:
-   - **Name**: `faq` *(This gives you `https://faq.onrender.com`)*
+   - **Name**: `faq` *(This gives you `https://faq-2e3h.onrender.com`)*
      > *Note: If `faq` is already claimed by someone else on Render, Render will append random characters (e.g. `faq-xyz1.onrender.com`). You can customize the name or use the gear icon `⚙` on the frontend UI to paste the final URL if it differs.*
    - **Runtime**: `Python 3`
    - **Branch**: `main`
@@ -42,7 +42,7 @@ git push origin main
 5. Click **Deploy Web Service**.
 6. When deployment finishes (approx 2 minutes), test your backend health in your browser:
    ```
-   https://faq.onrender.com/health
+   https://faq-2e3h.onrender.com/health
    ```
    It should return: `{"service": "college-faq-bert-api", "status": "ok"}`.
 
@@ -70,8 +70,8 @@ Choose either **Option A** or **Option B**:
 
 ## 4. Frontend & Backend Connection
 
-- The frontend is pre-configured with `DEFAULT_BACKEND_URL = "https://faq.onrender.com"`.
-- Netlify redirect rules (`_redirects` and `netlify.toml`) proxy `/api/*` directly to `https://faq.onrender.com/api/:splat`.
+- The frontend is pre-configured with `DEFAULT_BACKEND_URL = "https://faq-2e3h.onrender.com"`.
+- Netlify redirect rules (`_redirects` and `netlify.toml`) proxy `/api/*` directly to `https://faq-2e3h.onrender.com/api/:splat`.
 - CORS is enabled on the Flask backend so direct cross-origin API calls are fully supported.
 - **Render Cold Starts**: On the Free tier, Render puts web services to sleep after 15 minutes of inactivity. When you send the first request after it sleeps, please allow ~40–50 seconds for the container to wake up.
 - **Custom URL Switcher**: If your Render service URL differs (e.g. `https://faq-xxxx.onrender.com`), you can click the **`API: faq.onrender.com ⚙`** button in the header of the frontend to update the URL in 1 click without redeploying!
