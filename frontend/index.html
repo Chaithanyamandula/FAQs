@@ -212,7 +212,7 @@ async function classify() {
     show(data);
   } catch (e) {
     err.textContent = e instanceof TypeError 
-      ? "Cannot reach the server. Please check your Render backend URL or verify app is running." 
+      ? "Cannot reach the server. Note: Render free tier takes ~45s to wake from sleep if inactive. Please retry shortly." 
       : e.message;
     q.classList.remove("shake"); void q.offsetWidth; q.classList.add("shake");
   } finally {
